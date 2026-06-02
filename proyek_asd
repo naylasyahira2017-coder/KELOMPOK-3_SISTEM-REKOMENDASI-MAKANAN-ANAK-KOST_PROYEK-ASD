@@ -1,0 +1,242 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+
+# =========================================================================
+# ANGGOTA 1 - MATERI: OOP (CLASS & INHERITANCE)
+# =========================================================================
+class Kuliner:
+    def __init__(self, nama, harga, kategori):
+        self.nama = nama
+        self.harga = int(harga)
+        self.kategori = kategori
+
+class WarungMakan(Kuliner):
+    def __init__(self, nama, harga, kategori, nama_warung, lokasi, rating):
+        super().__init__(nama, harga, kategori)
+        self.nama_warung = nama_warung
+        self.lokasi = lokasi  
+        self.rating = float(rating)
+
+
+# =========================================================================
+# ANGGOTA 2 - MATERI: LINKED LIST (RIWAYAT KLIK)
+# =========================================================================
+
+
+
+# =========================================================================
+# ANGGOTA 3 - MATERI: BINARY SEARCH TREE & BINARY SEARCH
+# =========================================================================
+
+
+# =========================================================================
+# ANGGOTA 4 - MATERI: QUEUE & ALGORITMA MERGE SORT
+# =========================================================================
+
+
+
+
+
+# =========================================================================
+# MATERI: GUI TKINTER & PROGRAM UTAMA (CRUD SYSTEM)
+# =========================================================================
+class AplikasiRekomendasiAnakKost:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Sistem Rekomendasi Makanan Anak Kost Unila")
+        self.root.geometry("900x650")
+
+        self.database_warung = []
+        self.riwayat_cari = LinkedListHistory()
+        self.antrean_order = QueuePesanan()
+
+        # Menyuntikkan 9 Data Makanan Riil Sekitar Unila
+        self.database_warung.append(WarungMakan("Batagor Kering", 13000, "Jajanan", "Batagor Abah Unila", "Kampung Baru", 4.5))
+        self.database_warung.append(WarungMakan("Batagor Kuah", 15000, "Jajanan", "Batagor Abah Unila", "Kampung Baru", 4.5))
+        self.database_warung.append(WarungMakan("Ayam Geprek Original + Nasi", 24000, "Ayam", "Geprek Mas Boy", "Gedong Meneng", 4.7))
+        self.database_warung.append(WarungMakan("Ayam Geprek Pedas + Nasi", 24000, "Ayam", "Geprek Mas Boy", "Gedong Meneng", 4.7))
+        self.database_warung.append(WarungMakan("Nasi Uduk Komplit Telur", 10000, "Nasi", "Nasi Uduk Kampung Baru", "Kampung Baru", 4.4))
+        self.database_warung.append(WarungMakan("Paket Pecel Lele Maknyus", 15000, "Penyetan", "Pecel Lele Unila", "Gedong Meneng", 4.6))
+        self.database_warung.append(WarungMakan("Promo Mie Instan Warmindo", 7000, "Mie", "Warmindo Unila", "Kampung Baru", 4.3))
+        self.database_warung.append(WarungMakan("Nasi Sayur + Tahu Tempe", 8000, "Nasi", "Warung Makan Barokah", "Gedong Meneng", 4.4))
+        self.database_warung.append(WarungMakan("Dimsum Ayam Istimewa", 9000, "Cemilan", "Dimsum Unila", "Kampung Baru", 4.6))
+
+        # Pengaturan Tab Kontrol GUI
+        self.tab_control = ttk.Notebook(root)
+        self.tab_admin = ttk.Frame(self.tab_control)
+        self.tab_user = ttk.Frame(self.tab_control)
+        
+        self.tab_control.add(self.tab_admin, text='Menu Admin (CRUD)')
+        self.tab_control.add(self.tab_user, text='Menu Anak Kost (Rekomendasi)')
+        self.tab_control.pack(expand=1, fill="both")
+
+        self.buat_halaman_admin()
+        self.buat_halaman_user()
+
+    def buat_halaman_admin(self):
+        frame_input = tk.LabelFrame(self.tab_admin, text=" Form Kelola Data Makanan (CRUD) ")
+        frame_input.pack(fill="x", padx=10, pady=10)
+
+        tk.Label(frame_input, text="Nama Makanan:").grid(row=0, column=0, padx=5, pady=5)
+        self.ent_nama = tk.Entry(frame_input); self.ent_nama.grid(row=0, column=1, padx=5, pady=5)
+
+        tk.Label(frame_input, text="Harga (Rp):").grid(row=0, column=2, padx=5, pady=5)
+        self.ent_harga = tk.Entry(frame_input); self.ent_harga.grid(row=0, column=3, padx=5, pady=5)
+
+        tk.Label(frame_input, text="Nama Warung:").grid(row=1, column=0, padx=5, pady=5)
+        self.ent_warung = tk.Entry(frame_input); self.ent_warung.grid(row=1, column=1, padx=5, pady=5)
+
+        tk.Label(frame_input, text="Lokasi:").grid(row=1, column=2, padx=5, pady=5)
+        self.ent_lokasi = tk.Entry(frame_input); self.ent_lokasi.grid(row=1, column=3, padx=5, pady=5)
+
+        tk.Label(frame_input, text="Rating (1-5):").grid(row=2, column=0, padx=5, pady=5)
+        self.ent_rating = tk.Entry(frame_input); self.ent_rating.grid(row=2, column=1, padx=5, pady=5)
+        
+        tk.Label(frame_input, text="Kategori:").grid(row=2, column=2, padx=5, pady=5)
+        self.ent_kategori = tk.Entry(frame_input); self.ent_kategori.grid(row=2, column=3, padx=5, pady=5)
+
+        frame_aksi = tk.Frame(self.tab_admin)
+        frame_aksi.pack(pady=5)
+
+        tk.Button(frame_aksi, text="Tambah (Create)", command=self.crud_create, bg="green", fg="white").pack(side="left", padx=5)
+        tk.Button(frame_aksi, text="Perbarui (Update)", command=self.crud_update, bg="orange").pack(side="left", padx=5)
+        tk.Button(frame_aksi, text="Hapus (Delete)", command=self.crud_delete, bg="red", fg="white").pack(side="left", padx=5)
+
+        self.tabel_admin = ttk.Treeview(self.tab_admin, columns=("Nama", "Harga", "Warung", "Lokasi", "Rating"), show="headings")
+        self.tabel_admin.heading("Nama", text="Nama Makanan")
+        self.tabel_admin.heading("Harga", text="Harga")
+        self.tabel_admin.heading("Warung", text="Nama Warung")
+        self.tabel_admin.heading("Lokasi", text="Lokasi Sekitar Unila")
+        self.tabel_admin.heading("Rating", text="Rating")
+        self.tabel_admin.pack(fill="both", expand=True, padx=10, pady=10)
+        self.tabel_admin.bind("<<TreeviewSelect>>", self.ambil_data_klik)
+
+        self.refresh_tabel_admin(self.database_warung)
+
+    def refresh_tabel_admin(self, data_list):
+        for i in self.tabel_admin.get_children():
+            self.tabel_admin.delete(i)
+        for item in data_list:
+            self.tabel_admin.insert("", "end", values=(item.nama, item.harga, item.nama_warung, item.lokasi, item.rating))
+
+    def ambil_data_klik(self, event):
+        item_terpilih = self.tabel_admin.focus()
+        if item_terpilih:
+            val = self.tabel_admin.item(item_terpilih, "values")
+            self.ent_nama.delete(0, tk.END); self.ent_nama.insert(0, val[0])
+            self.ent_harga.delete(0, tk.END); self.ent_harga.insert(0, val[1])
+            self.ent_warung.delete(0, tk.END); self.ent_warung.insert(0, val[2])
+            self.ent_lokasi.delete(0, tk.END); self.ent_lokasi.insert(0, val[3])
+            self.ent_rating.delete(0, tk.END); self.ent_rating.insert(0, val[4])
+
+    def crud_create(self):
+        try:
+            baru = WarungMakan(self.ent_nama.get(), self.ent_harga.get(), self.ent_kategori.get() if self.ent_kategori.get() else "Umum",
+                               self.ent_warung.get(), self.ent_lokasi.get(), self.ent_rating.get())
+            self.database_warung.append(baru)
+            self.refresh_tabel_admin(self.database_warung)
+            self.tampilkan_di_list_user(self.database_warung)
+            messagebox.showinfo("Sukses", "Data Berhasil Ditambahkan!")
+        except ValueError:
+            messagebox.showerror("Error", "Input tidak valid!")
+
+    def crud_update(self):
+        item_terpilih = self.tabel_admin.focus()
+        if not item_terpilih: return messagebox.showwarning("Peringatan", "Pilih data tabel!")
+        index = self.tabel_admin.index(item_terpilih)
+        self.database_warung[index] = WarungMakan(self.ent_nama.get(), self.ent_harga.get(), "Umum",
+                                                  self.ent_warung.get(), self.ent_lokasi.get(), self.ent_rating.get())
+        self.refresh_tabel_admin(self.database_warung)
+        self.tampilkan_di_list_user(self.database_warung)
+        messagebox.showinfo("Sukses", "Data Berhasil Diperbarui!")
+
+    def crud_delete(self):
+        item_terpilih = self.tabel_admin.focus()
+        if not item_terpilih: return messagebox.showwarning("Peringatan", "Pilih data tabel!")
+        index = self.tabel_admin.index(item_terpilih)
+        del self.database_warung[index]
+        self.refresh_tabel_admin(self.database_warung)
+        self.tampilkan_di_list_user(self.database_warung)
+        messagebox.showinfo("Sukses", "Data Berhasil Dihapus!")
+
+    def buat_halaman_user(self):
+        frame_fitur = tk.LabelFrame(self.tab_user, text=" Fitur Pencarian & Filter ")
+        frame_fitur.pack(fill="x", padx=10, pady=10)
+
+        # Bagian BST (Filter Harga)
+        tk.Label(frame_fitur, text="Budget Maks (Rp):").pack(side="left", padx=2)
+        self.ent_budget = tk.Entry(frame_fitur, width=12); self.ent_budget.pack(side="left", padx=2)
+        tk.Button(frame_fitur, text="Filter Budget (BST)", command=self.fitur_bst_filter, bg="#b3e6ff").pack(side="left", padx=5)
+
+        # Bagian Merge Sort
+        tk.Button(frame_fitur, text="Urut Rating (Merge Sort)", command=self.fitur_sort_rating, bg="#ffcc99").pack(side="right", padx=5)
+
+        # Bagian Binary Search (Cari Nama Warung)
+        frame_baris2 = tk.Frame(self.tab_user); frame_baris2.pack(fill="x", padx=10)
+        tk.Label(frame_baris2, text="Cari Nama Warung:").pack(side="left", padx=2)
+        self.ent_cari_warung = tk.Entry(frame_baris2, width=20); self.ent_cari_warung.pack(side="left", padx=2)
+        tk.Button(frame_baris2, text="Cari (Binary Search)", command=self.fitur_binary_search, bg="#b3ffb3").pack(side="left", padx=5)
+        tk.Button(frame_baris2, text="Reset Tampilan", command=lambda: self.tampilkan_di_list_user(self.database_warung)).pack(side="left", padx=5)
+
+        self.list_user = tk.Listbox(self.tab_user, width=90, height=15)
+        self.list_user.pack(padx=10, pady=10, fill="both", expand=True)
+
+        # Bagian Queue & Linked List History
+        frame_bawah = tk.Frame(self.tab_user); frame_bawah.pack(fill="x", padx=10, pady=5)
+        tk.Button(frame_bawah, text="Pesan (Queue)", command=self.fitur_pesan, bg="lightgreen").pack(side="left", padx=5)
+        tk.Button(frame_bawah, text="Lihat Antrean Dapur", command=self.lihat_antrean).pack(side="left", padx=5)
+        tk.Button(frame_bawah, text="Lihat Riwayat Klik (Linked List)", command=self.lihat_riwayat, bg="lightblue").pack(side="right", padx=5)
+        
+        self.list_user.bind("<<ListboxSelect>>", self.catat_riwayat_klik)
+        self.tampilkan_di_list_user(self.database_warung)
+
+    def fitur_bst_filter(self):
+        pohon_harga = BSTHarga()
+        for w in self.database_warung: pohon_harga.insert(w)
+        try:
+            budget = int(self.ent_budget.get())
+            self.tampilkan_di_list_user(pohon_harga.cari_di_bawah_harga(budget))
+        except ValueError: messagebox.showerror("Error", "Masukkan nominal angka budget!")
+
+    def fitur_sort_rating(self):
+        data_copy = list(self.database_warung)
+        merge_sort_rating(data_copy)
+        self.tampilkan_di_list_user(data_copy)
+
+    def fitur_binary_search(self):
+        target = self.ent_cari_warung.get().strip()
+        if not target: return messagebox.showwarning("Peringatan", "Masukkan nama warung!")
+        self.database_warung.sort(key=lambda x: x.nama_warung.lower())
+        indeks = binary_search_warung(self.database_warung, target)
+        if indeks != -1:
+            warung = self.database_warung[indeks].nama_warung.lower()
+            self.tampilkan_di_list_user([w for w in self.database_warung if w.nama_warung.lower() == warung])
+        else: messagebox.showwarning("Tidak Ditemukan", f"Warung '{target}' tidak terdaftar.")
+
+    def catat_riwayat_klik(self, event):
+        seleksi = self.list_user.curselection()
+        if seleksi: self.riwayat_cari.add_history(self.list_user.get(seleksi[0]))
+
+    def lihat_riwayat(self):
+        riwayat = self.riwayat_cari.get_all()
+        messagebox.showinfo("Riwayat (Linked List)", "\n".join(riwayat) if riwayat else "Belum ada riwayat.")
+
+    def fitur_pesan(self):
+        seleksi = self.list_user.curselection()
+        if seleksi:
+            self.antrean_order.enqueue(self.list_user.get(seleksi[0]))
+            messagebox.showinfo("Queue Berhasil", "Pesanan terkirim ke dapur!")
+        else: messagebox.showwarning("Peringatan", "Pilih menu makanan dulu!")
+
+    def lihat_antrean(self):
+        antrean = self.antrean_order.get_all_queue()
+        messagebox.showinfo("Antrean Dapur (FIFO)", "\n".join(antrean) if antrean else "Dapur kosong.")
+
+    def tampilkan_di_list_user(self, daftar):
+        self.list_user.delete(0, tk.END)
+        for w in daftar: self.list_user.insert(tk.END, f"[{w.nama_warung}] {w.nama} - Rp{w.harga} | Rating: {w.rating} ({w.lokasi})")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = AplikasiRekomendasiAnakKost(root)
+    root.mainloop()
